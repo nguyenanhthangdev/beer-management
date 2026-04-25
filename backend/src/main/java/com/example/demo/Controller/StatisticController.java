@@ -16,35 +16,48 @@ public class StatisticController {
     @Autowired
     private StatisticService service;
 
-    // theo ngày
+    @GetMapping("/today")
+    public Long today() {
+        return service.revenueToday();
+    }
+
+    @GetMapping("/month")
+    public Long month() {
+        return service.revenueThisMonth();
+    }
+
     @GetMapping("/day")
-    public Long byDay(@RequestParam String date) {
+    public Long byDate(@RequestParam String date) {
         return service.revenueByDate(LocalDate.parse(date));
     }
 
-    // theo khoảng
-    @GetMapping("/range")
-    public Long byRange(@RequestParam String start, @RequestParam String end) {
-        return service.revenueBetween(
-                LocalDateTime.parse(start),
-                LocalDateTime.parse(end)
-        );
+    @GetMapping("/last-7-days")
+    public List<Object[]> last7Days() {
+        return service.last7Days();
     }
 
-    // best seller
     @GetMapping("/best-seller")
     public List<Object[]> bestSeller() {
         return service.bestSeller();
     }
 
-    // least seller
     @GetMapping("/least-seller")
     public List<Object[]> leastSeller() {
         return service.leastSeller();
     }
 
-    @GetMapping("/test")
-    public String test() {
-        return "OK";
+    @GetMapping("/compare/today")
+    public Object[] compareToday() {
+        return service.compareTodayVsYesterday();
+    }
+
+    @GetMapping("/compare/week")
+    public Object[] compareWeek() {
+        return service.compareWeek();
+    }
+
+    @GetMapping("/compare/month")
+    public Object[] compareMonth() {
+        return service.compareMonth();
     }
 }

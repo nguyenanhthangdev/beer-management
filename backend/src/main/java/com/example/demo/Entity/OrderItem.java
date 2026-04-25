@@ -23,4 +23,5 @@ public class OrderItem {
     private Integer quantity;
 
     private Boolean served = false; // đã mang chưa
+
 }

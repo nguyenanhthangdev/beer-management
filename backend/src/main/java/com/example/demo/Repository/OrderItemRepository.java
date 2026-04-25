@@ -31,4 +31,25 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     ORDER BY SUM(i.quantity) ASC
     """)
     List<Object[]> getLeastSeller();
+
+    // ===== BEST SELLER =====
+    @Query("""
+        SELECT oi.productName, SUM(oi.quantity)
+        FROM OrderItem oi, Orders o
+        WHERE oi.orderId = o.id
+          AND o.status = 'PAID'
+        GROUP BY oi.productName
+    """)
+    List<Object[]> bestSeller();
+
+    // ===== LEAST SELLER =====
+    @Query("""
+        SELECT oi.productName, SUM(oi.quantity)
+        FROM OrderItem oi, Orders o
+        WHERE oi.orderId = o.id
+          AND o.status = 'PAID'
+        GROUP BY oi.productName
+        ORDER BY SUM(oi.quantity) ASC
+    """)
+    List<Object[]> leastSeller();
 }

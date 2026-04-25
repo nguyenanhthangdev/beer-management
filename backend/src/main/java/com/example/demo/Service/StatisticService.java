@@ -18,23 +18,84 @@ public class StatisticService {
     @Autowired
     private OrderItemRepository itemRepo;
 
-    // theo ngày
+    // ===== DOANH THU =====
+
+    public Long revenueToday() {
+        Long r = orderRepo.revenueToday();
+        return r != null ? r : 0;
+    }
+
+    public Long revenueThisMonth() {
+        Long r = orderRepo.revenueThisMonth();
+        return r != null ? r : 0;
+    }
+
     public Long revenueByDate(LocalDate date) {
-        return orderRepo.getRevenueByDate(date);
+        Long r = orderRepo.revenueByDate(date.toString());
+        return r != null ? r : 0;
     }
 
-    // theo tuần / tháng
-    public Long revenueBetween(LocalDateTime start, LocalDateTime end) {
-        return orderRepo.getRevenueBetween(start, end);
+    // ===== 7 NGÀY =====
+
+    public List<Object[]> last7Days() {
+        return orderRepo.last7Days();
     }
 
-    // best seller
+    // ===== BEST / LEAST =====
+
     public List<Object[]> bestSeller() {
-        return itemRepo.getBestSeller();
+        return itemRepo.bestSeller();
     }
 
-    // least seller
     public List<Object[]> leastSeller() {
-        return itemRepo.getLeastSeller();
+        return itemRepo.leastSeller();
     }
+
+    // ===== SO SÁNH =====
+
+    public Object[] compareTodayVsYesterday() {
+        return orderRepo.compareToday();
+    }
+
+    public Object[] compareToday() {
+        LocalDate today = LocalDate.now();
+        LocalDate yesterday = today.minusDays(1);
+
+        Long todayRevenue = orderRepo.sumByDate(today);
+        Long yesterdayRevenue = orderRepo.sumByDate(yesterday);
+
+        return new Object[]{todayRevenue, yesterdayRevenue};
+    }
+
+    public Object[] compareWeek() {
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime startThisWeek = now.minusDays(7);
+        LocalDateTime startLastWeek = now.minusDays(14);
+
+        Long thisWeek = orderRepo.sumBetween(startThisWeek, now);
+        Long lastWeek = orderRepo.sumBetween(startLastWeek, startThisWeek);
+
+        return new Object[]{thisWeek, lastWeek};
+    }
+
+    public Object[] compareMonth() {
+        LocalDate now = LocalDate.now();
+
+        LocalDate startThisMonth = now.withDayOfMonth(1);
+        LocalDate startLastMonth = startThisMonth.minusMonths(1);
+
+        Long thisMonth = orderRepo.sumBetween(
+                startThisMonth.atStartOfDay(),
+                now.atTime(23, 59)
+        );
+
+        Long lastMonth = orderRepo.sumBetween(
+                startLastMonth.atStartOfDay(),
+                startThisMonth.atStartOfDay()
+        );
+
+        return new Object[]{thisMonth, lastMonth};
+    }
+
 }
