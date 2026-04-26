@@ -23,7 +23,12 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
 
     // ===== DOANH THU =====
 
-    @Query("SELECT SUM(o.totalAmount) FROM Orders o WHERE DATE(o.closedAt) = CURRENT_DATE AND o.status = 'PAID'")
+    @Query(value = """
+        SELECT SUM(o.total_amount)
+        FROM orders o
+        WHERE DATE(o.closed_at) = CURRENT_DATE
+          AND o.status = 'PAID'
+    """, nativeQuery = true)
     Long revenueToday();
 
     @Query("SELECT SUM(o.totalAmount) FROM Orders o WHERE MONTH(o.closedAt) = MONTH(CURRENT_DATE) AND YEAR(o.closedAt) = YEAR(CURRENT_DATE) AND o.status = 'PAID'")
