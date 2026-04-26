@@ -122,7 +122,6 @@ function Dashboard({ onBack }) {
       })),
     );
 
-
     const data = best.data.map((i) => ({
       name: i[0],
       quantity: i[1],
@@ -143,7 +142,27 @@ function Dashboard({ onBack }) {
     setCompareWeek((await axios.get(`${API}/compare/week`)).data);
     setCompareMonth((await axios.get(`${API}/compare/month`)).data);
 
+    const res = await axios.get(`${API}/best-seller`);
 
+    const dataBestSeller = res.data.map((i) => ({
+      name: i[0],
+      quantity: i[1],
+    }));
+    const sorted = [...dataBestSeller].sort((a, b) => b.quantity - a.quantity);
+    const top5ValueBestSeller = sorted[4]?.quantity;
+
+    const bestSeller = sorted.filter((i) => i.quantity >= top5ValueBestSeller);
+
+    setBestSeller(bestSeller);
+
+    const bestSet = new Set(bestSeller.map((i) => i.name));
+
+    const leastSeller = sorted
+      .filter((i) => i.quantity > 0) // đã bán
+      .filter((i) => !bestSet.has(i.name)) // ❌ loại best seller
+      .sort((a, b) => a.quantity - b.quantity);
+
+    setLeastSeller(leastSeller);
   };
 
   const loadByDate = async () => {
@@ -200,7 +219,6 @@ function Dashboard({ onBack }) {
   const CompareItem = ({ title, current, prev, label1, label2 }) => {
     const { diff, percent, isUp } = calcCompare(current || 0, prev || 0);
 
-
     useEffect(() => {
       loadZeroSeller();
     }, []);
@@ -245,7 +263,7 @@ function Dashboard({ onBack }) {
       </div>
     );
   };
-  console.log("lowSeller:", lowSeller);
+
   return (
     <div
       style={{

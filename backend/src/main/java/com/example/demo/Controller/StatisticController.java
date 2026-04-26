@@ -42,11 +42,6 @@ public class StatisticController {
         return service.bestSeller();
     }
 
-    @GetMapping("/least-seller")
-    public List<Object[]> leastSeller() {
-        return service.leastSeller();
-    }
-
     @GetMapping("/compare/today")
     public Object[] compareToday() {
         return service.compareTodayVsYesterday();
@@ -62,9 +57,9 @@ public class StatisticController {
         return service.compareMonth();
     }
 
-    @GetMapping("/low-seller")
-    public Map<String, List<Object[]>> stats() {
-        return service.getLowSeller();
+    @GetMapping("/product-sales")
+    public List<Object[]> getProductSales() {
+        return service.getProductSales();
     }
 
     @GetMapping("/zero-seller")

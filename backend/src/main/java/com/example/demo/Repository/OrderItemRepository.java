@@ -42,28 +42,14 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     """)
     List<Object[]> bestSeller();
 
-    // ===== LEAST SELLER =====
     @Query("""
         SELECT oi.productName, SUM(oi.quantity)
-        FROM OrderItem oi, Orders o
-        WHERE oi.orderId = o.id
-          AND o.status = 'PAID'
-        GROUP BY oi.productName
-        ORDER BY SUM(oi.quantity) ASC
-    """)
-    List<Object[]> leastSeller();
-
-    @Query(value = """
-        SELECT oi.product_name, SUM(oi.quantity) as total
-        FROM order_item oi
-        JOIN orders o ON oi.order_id = o.id
+        FROM OrderItem oi
+        JOIN Orders o ON oi.orderId = o.id
         WHERE o.status = 'PAID'
-        GROUP BY oi.product_name
-        HAVING SUM(oi.quantity) > 0
-        ORDER BY total ASC
-        LIMIT 5
-    """, nativeQuery = true)
-    List<Object[]> lowSeller();
+        GROUP BY oi.productName
+    """)
+    List<Object[]> getProductSales();
 
     @Query(value = """
     SELECT p.name
