@@ -11,7 +11,7 @@ import {
   Bar,
   ResponsiveContainer,
 } from "recharts";
-
+import "./index.css";
 const API = "http://localhost:8080/api/statistics";
 
 function Dashboard({ onBack }) {
@@ -30,10 +30,48 @@ function Dashboard({ onBack }) {
   const [date, setDate] = useState("");
   const [customRevenue, setCustomRevenue] = useState(0);
 
+  const [loadingDay, setLoadingDay] = useState(false);
+  const [hover, setHover] = useState(false);
+
   const formatVND = (value) => {
     const num = Number(value);
     if (!value || isNaN(num)) return "0 VND";
     return Math.floor(num).toLocaleString("vi-VN") + " VND";
+  };
+
+  const dateCard = {
+    marginTop: 30,
+    padding: 20,
+    borderRadius: 12,
+    border: "1px solid #eee",
+    background: "#fff",
+    maxWidth: 400,
+    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+  };
+
+  const dateInput = {
+    padding: 8,
+    borderRadius: 8,
+    border: "1px solid #ddd",
+    width: "100%",
+    marginTop: 10,
+  };
+
+  const dateBtn = {
+    marginTop: 10,
+    padding: "8px 12px",
+    borderRadius: 8,
+    border: "none",
+    background: "#1890ff",
+    color: "#fff",
+    cursor: "pointer",
+  };
+
+  const resultBox = {
+    marginTop: 15,
+    padding: 10,
+    background: "#f6f8fa",
+    borderRadius: 8,
   };
 
   const loadAll = async () => {
@@ -112,10 +150,23 @@ function Dashboard({ onBack }) {
   }, []);
 
   const loadByDate = async () => {
-    const res = await axios.get(`${API}/day`, {
-      params: { date },
-    });
-    setCustomRevenue(res.data);
+    if (!date) return;
+
+    setLoadingDay(true);
+
+    try {
+      const res = await axios.get(`${API}/day`, {
+        params: { date },
+      });
+
+      // giả delay nhẹ cho mượt (optional)
+      setTimeout(() => {
+        setCustomRevenue(res.data);
+        setLoadingDay(false);
+      }, 800);
+    } catch (err) {
+      setLoadingDay(false);
+    }
   };
 
   const calcCompare = (current, prev) => {
@@ -222,7 +273,7 @@ function Dashboard({ onBack }) {
 
       {/* 7 NGÀY */}
       <h3>📅 7 ngày gần nhất</h3>
-      <LineChart width={800} height={300} data={last7Days}>
+      <LineChart width="100%" height={400} data={last7Days}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="date" />
         <YAxis />
@@ -232,7 +283,7 @@ function Dashboard({ onBack }) {
 
       {/* BEST SELLER */}
       <h3>🔥 Best Seller</h3>
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={400}>
         <BarChart data={bestSeller}>
           <XAxis dataKey="name" />
           <YAxis />
@@ -247,11 +298,11 @@ function Dashboard({ onBack }) {
 
       <div
         style={{
-          background: "#fff",
+          background: "#fafafa",
           borderRadius: 12,
           padding: 15,
           border: "1px solid #eee",
-          maxWidth: 500,
+          maxWidth: "100%",
         }}
       >
         {leastSeller.length === 0 ? (
@@ -288,7 +339,7 @@ function Dashboard({ onBack }) {
           padding: 15,
           borderRadius: 10,
           border: "1px solid #eee",
-          maxWidth: 400,
+          maxWidth: "100%",
         }}
       >
         {zeroSeller.length === 0 ? (
@@ -309,10 +360,53 @@ function Dashboard({ onBack }) {
       </div>
 
       {/* DATE */}
-      <h3>📅 Doanh thu ngày</h3>
-      <input type="date" onChange={(e) => setDate(e.target.value)} />
-      <button onClick={loadByDate}>Xem</button>
-      <h2>{formatVND(customRevenue)}</h2>
+      <div style={dateCard}>
+        <h3>📅 Doanh thu theo ngày</h3>
+
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          style={dateInput}
+        />
+
+        <button
+          onClick={loadByDate}
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+          style={{
+            marginTop: 10,
+            padding: "8px 12px",
+            borderRadius: 8,
+            border: "none",
+            background: hover ? "#40a9ff" : "#1890ff",
+            color: "#fff",
+            cursor: "pointer",
+            transition: "0.2s",
+          }}
+        >
+          Xem doanh thu
+        </button>
+
+        <div style={resultBox}>
+          <div style={{ fontSize: 18, marginTop: 10 }}>💰 Doanh thu:</div>
+
+          <div style={{ marginTop: 15 }}>
+            {loadingDay ? (
+              <div style={{ textAlign: "center" }}>
+                <div className="spinner" />
+                <div>Đang tính toán...</div>
+              </div>
+            ) : (
+              <div
+                style={{ fontSize: 26, fontWeight: "bold", color: "#1890ff" }}
+              >
+                {formatVND(customRevenue)}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

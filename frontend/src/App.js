@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import StatisticsDashboard from "./StatisticsDashboard";
+import "./index.css";
 
 const API = "http://localhost:8080/api";
 

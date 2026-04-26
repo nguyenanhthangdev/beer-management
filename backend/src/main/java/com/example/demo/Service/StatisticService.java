@@ -104,4 +104,8 @@ public class StatisticService {
         return itemRepo.zeroSeller();
     }
 
+    public Double getRevenueByDate(LocalDate date) {
+        Double result = orderRepo.getRevenueByDate(date);
+        return result != null ? result : 0;
+    }
 }

@@ -3,6 +3,7 @@ package com.example.demo.Repository;
 import com.example.demo.Entity.Orders;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,14 +12,6 @@ import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Orders, Long> {
     Optional<Orders> findByTableIdAndStatus(Long tableId, String status);
-
-    @Query("""
-    SELECT SUM(o.totalAmount)
-    FROM Orders o
-    WHERE o.status = 'PAID'
-    AND DATE(o.closedAt) = :date
-    """)
-    Long getRevenueByDate(LocalDate date);
 
     @Query("""
     SELECT SUM(o.totalAmount)
@@ -64,23 +57,6 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
              AND o.status = 'PAID') AS yesterday
     """, nativeQuery = true)
     Object[] compareToday();
-//    @Query(value = """
-//        SELECT
-//          COALESCE((
-//            SELECT CAST(SUM(o.total_amount) AS SIGNED)
-//            FROM orders o
-//            WHERE DATE(o.closed_at) = CURDATE()
-//              AND o.status = 'PAID'
-//          ), 0),
-//
-//          COALESCE((
-//            SELECT CAST(SUM(o.total_amount) AS SIGNED)
-//            FROM orders o
-//            WHERE DATE(o.closed_at) = CURDATE() - INTERVAL 1 DAY
-//              AND o.status = 'PAID'
-//          ), 0)
-//    """, nativeQuery = true)
-//    Object[] compareToday();
 
     @Query("""
         SELECT SUM(o.totalAmount)
@@ -97,4 +73,12 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
           AND o.closedAt BETWEEN :start AND :end
     """)
     Long sumBetween(LocalDateTime start, LocalDateTime end);
+
+    @Query("""
+        SELECT SUM(o.totalAmount)
+        FROM Orders o
+        WHERE o.status = 'PAID'
+          AND DATE(o.closedAt) = :date
+    """)
+    Double getRevenueByDate(@Param("date") LocalDate date);
 }

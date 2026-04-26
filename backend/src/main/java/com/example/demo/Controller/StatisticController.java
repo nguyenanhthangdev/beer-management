@@ -27,11 +27,6 @@ public class StatisticController {
         return service.revenueThisMonth();
     }
 
-    @GetMapping("/day")
-    public Long byDate(@RequestParam String date) {
-        return service.revenueByDate(LocalDate.parse(date));
-    }
-
     @GetMapping("/last-7-days")
     public List<Object[]> last7Days() {
         return service.last7Days();
@@ -65,5 +60,11 @@ public class StatisticController {
     @GetMapping("/zero-seller")
     public List<String> zeroSeller() {
         return service.getZeroSeller();
+    }
+
+    @GetMapping("/day")
+    public Double getRevenueByDay(@RequestParam String date) {
+        LocalDate localDate = LocalDate.parse(date);
+        return service.getRevenueByDate(localDate);
     }
 }
