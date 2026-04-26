@@ -4,7 +4,7 @@ import Swal from "sweetalert2";
 import StatisticsDashboard from "./StatisticsDashboard";
 import "./index.css";
 
-const API = "http://localhost:8080/api";
+const API = `${process.env.REACT_APP_API}/statistics`;
 
 function App() {
   const [tables, setTables] = useState([]);

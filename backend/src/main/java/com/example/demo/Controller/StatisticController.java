@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.Entity.Orders;
 import com.example.demo.Repository.OrderRepository;
 import com.example.demo.Service.StatisticService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,5 +89,17 @@ public class StatisticController {
         } catch (Exception e) {
             return e.getMessage();
         }
+    }
+
+    @GetMapping("/seed")
+    public String seed() {
+        Orders o = new Orders();
+        o.setStatus("PAID");
+        o.setTotalAmount(100000L);
+        o.setClosedAt(LocalDateTime.now());
+
+        orderRepository.save(o);
+
+        return "OK";
     }
 }
