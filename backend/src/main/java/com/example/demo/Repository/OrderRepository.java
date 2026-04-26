@@ -24,7 +24,7 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
     // ===== DOANH THU =====
 
     @Query(value = """
-        SELECT SUM(o.total_amount)
+        SELECT COALESCE(SUM(o.total_amount), 0)
         FROM orders o
         WHERE DATE(o.closed_at) = CURRENT_DATE
           AND o.status = 'PAID'
