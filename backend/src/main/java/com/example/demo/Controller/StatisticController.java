@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.Repository.OrderRepository;
 import com.example.demo.Service.StatisticService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,9 @@ public class StatisticController {
 
     @Autowired
     private StatisticService service;
+
+    @Autowired
+    private OrderRepository orderRepository;
 
     @GetMapping("/today")
     public Long today() {
@@ -66,5 +70,19 @@ public class StatisticController {
     public Double getRevenueByDay(@RequestParam String date) {
         LocalDate localDate = LocalDate.parse(date);
         return service.getRevenueByDate(localDate);
+    }
+
+    @GetMapping("/test-db")
+    public String testDB() {
+        return "OK";
+    }
+
+    @GetMapping("/test-orders")
+    public Object testOrders() {
+        try {
+            return orderRepository.findAll();
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 }
