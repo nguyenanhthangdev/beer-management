@@ -21,9 +21,9 @@ public class StatisticService {
 
     // ===== DOANH THU =====
 
-    public Long revenueToday() {
-        Long r = orderRepo.revenueToday();
-        return r != null ? r : 0;
+    public Long getTodayRevenue() {
+        Long res = orderRepo.revenueToday();
+        return res != null ? res : 0L;
     }
 
     public Long revenueThisMonth() {

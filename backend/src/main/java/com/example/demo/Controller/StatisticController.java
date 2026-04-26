@@ -22,8 +22,12 @@ public class StatisticController {
     private OrderRepository orderRepository;
 
     @GetMapping("/today")
-    public Long today() {
-        return service.revenueToday();
+    public Object today() {
+        try {
+            return service.getTodayRevenue();
+        } catch (Exception e) {
+            return e.toString();
+        }
     }
 
     @GetMapping("/month")
