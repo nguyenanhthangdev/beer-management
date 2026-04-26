@@ -21,8 +21,6 @@ function Dashboard({ onBack }) {
 
   const [bestSeller, setBestSeller] = useState([]);
   const [leastSeller, setLeastSeller] = useState([]);
-
-  const [lowSeller, setLowSeller] = useState([]);
   const [zeroSeller, setZeroSeller] = useState([]);
 
   const [compareToday, setCompareToday] = useState([]);
@@ -34,32 +32,9 @@ function Dashboard({ onBack }) {
 
   const formatVND = (value) => {
     const num = Number(value);
-
     if (!value || isNaN(num)) return "0 VND";
-
     return Math.floor(num).toLocaleString("vi-VN") + " VND";
   };
-
-  const LineTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      const d = payload[0].payload;
-
-      return (
-        <div
-          style={{ background: "#fff", padding: 10, border: "1px solid #ccc" }}
-        >
-          <b>{d.date}</b>
-          <div>{formatVND(d.revenue)}</div>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // ===== LOAD ALL =====
-  useEffect(() => {
-    loadAll();
-  }, []);
 
   const loadAll = async () => {
     const t = await axios.get(`${API}/today`);
@@ -69,129 +44,78 @@ function Dashboard({ onBack }) {
     setMonth(m.data);
 
     const d7 = await axios.get(`${API}/last-7-days`);
-    const formatDate = (date) => {
-      return date.toISOString().slice(5, 10); // MM-DD
-    };
-
-    // const today = new Date();
 
     const full7Days = [];
     const today = new Date();
-
-    // reset giờ để tránh lệch
     today.setHours(0, 0, 0, 0);
 
     for (let i = 6; i >= 0; i--) {
-      const d = new Date(today); // clone chuẩn
+      const d = new Date(today);
       d.setDate(today.getDate() - i);
 
-      const dateStr = d.toLocaleDateString("en-CA"); // yyyy-MM-dd
-
       full7Days.push({
-        date: dateStr,
+        date: d.toLocaleDateString("en-CA"),
         revenue: 0,
       });
     }
 
-    // map data backend
     d7.data.forEach((item) => {
-      const backendDate = item[0]; // giữ nguyên yyyy-MM-dd
-
-      const found = full7Days.find((d) => d.date === backendDate);
-      if (found) {
-        found.revenue = item[1];
-      }
+      const found = full7Days.find((d) => d.date === item[0]);
+      if (found) found.revenue = item[1];
     });
 
-    // format lại để hiển thị đẹp
-    const finalData = full7Days.map((d) => ({
-      ...d,
-      date: new Date(d.date).toLocaleDateString("vi-VN", {
-        day: "2-digit",
-        month: "2-digit",
-      }),
-    }));
-
-    setLast7Days(finalData);
-
-    const best = await axios.get(`${API}/best-seller`);
-    setBestSeller(
-      best.data.map((i) => ({
-        name: i[0],
-        quantity: i[1],
+    setLast7Days(
+      full7Days.map((d) => ({
+        ...d,
+        date: new Date(d.date).toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+        }),
       })),
     );
-
-    const data = best.data.map((i) => ({
-      name: i[0],
-      quantity: i[1],
-    }));
-
-    // sort giảm dần
-    data.sort((a, b) => b.quantity - a.quantity);
-
-    // lấy mốc top 5
-    const top5Value = data[4]?.quantity;
-
-    // giữ lại tất cả món >= top 5 (xử lý đồng hạng)
-    const topData = data.filter((i) => i.quantity >= top5Value);
-
-    setBestSeller(topData);
 
     setCompareToday((await axios.get(`${API}/compare/today`)).data);
     setCompareWeek((await axios.get(`${API}/compare/week`)).data);
     setCompareMonth((await axios.get(`${API}/compare/month`)).data);
 
+    // ================= BEST + LEAST =================
     const res = await axios.get(`${API}/best-seller`);
 
-    const dataBestSeller = res.data.map((i) => ({
+    const data = res.data.map((i) => ({
       name: i[0],
       quantity: i[1],
     }));
-    const sorted = [...dataBestSeller].sort((a, b) => b.quantity - a.quantity);
-    const top5ValueBestSeller = sorted[4]?.quantity;
 
-    const bestSeller = sorted.filter((i) => i.quantity >= top5ValueBestSeller);
+    const sorted = [...data].sort((a, b) => b.quantity - a.quantity);
 
-    setBestSeller(bestSeller);
+    const top5Value = sorted[4]?.quantity;
 
-    const bestSet = new Set(bestSeller.map((i) => i.name));
+    const best = sorted.filter((i) => i.quantity >= top5Value);
+    setBestSeller(best);
 
-    const leastSeller = sorted
-      .filter((i) => i.quantity > 0) // đã bán
-      .filter((i) => !bestSet.has(i.name)) // ❌ loại best seller
+    const bestSet = new Set(best.map((i) => i.name));
+
+    const least = sorted
+      .filter((i) => i.quantity > 0)
+      .filter((i) => !bestSet.has(i.name))
       .sort((a, b) => a.quantity - b.quantity);
 
-    setLeastSeller(leastSeller);
+    setLeastSeller(least);
+
+    // ================= ZERO SELLER =================
+    const zero = await axios.get(`${API}/zero-seller`);
+    setZeroSeller(zero.data);
   };
+
+  useEffect(() => {
+    loadAll();
+  }, []);
 
   const loadByDate = async () => {
     const res = await axios.get(`${API}/day`, {
       params: { date },
     });
     setCustomRevenue(res.data);
-  };
-
-  const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      const d = payload[0].payload;
-
-      return (
-        <div
-          style={{
-            background: "#fff",
-            border: "1px solid #ccc",
-            padding: 10,
-            borderRadius: 8,
-          }}
-        >
-          <b>{d.name}</b>
-          <div>SL: {d.quantity}</div>
-          <div>Doanh thu: {formatVND(d.revenue)}</div>
-        </div>
-      );
-    }
-    return null;
   };
 
   const calcCompare = (current, prev) => {
@@ -219,14 +143,6 @@ function Dashboard({ onBack }) {
   const CompareItem = ({ title, current, prev, label1, label2 }) => {
     const { diff, percent, isUp } = calcCompare(current || 0, prev || 0);
 
-    useEffect(() => {
-      loadZeroSeller();
-    }, []);
-    const loadZeroSeller = async () => {
-      const res = await axios.get(`${API}/zero-seller`);
-      setZeroSeller(res.data);
-    };
-
     return (
       <div
         style={{
@@ -239,17 +155,14 @@ function Dashboard({ onBack }) {
       >
         <div style={{ fontWeight: "bold", marginBottom: 5 }}>{title}</div>
 
-        {/* dòng 1 */}
         <div style={{ fontSize: 18 }}>
           {label1}: <b>{formatVND(current)}</b>
         </div>
 
-        {/* dòng 2 */}
         <div style={{ color: "#666" }}>
           {label2}: {formatVND(prev)}
         </div>
 
-        {/* tăng giảm */}
         <div
           style={{
             marginTop: 5,
@@ -265,33 +178,22 @@ function Dashboard({ onBack }) {
   };
 
   return (
-    <div
-      style={{
-        padding: 30,
-        background: "#fff",
-        color: "#000",
-        minHeight: "100vh",
-      }}
-    >
+    <div style={{ padding: 30, background: "#fff", minHeight: "100vh" }}>
       <button onClick={onBack}>⬅ Quay lại</button>
 
       <h1>📊 Dashboard quán</h1>
 
-      {/* ===== CARD ===== */}
-      <div style={{ display: "flex", gap: 20, marginTop: 20 }}>
+      {/* CARD */}
+      <div style={{ display: "flex", gap: 20 }}>
         <div style={card}>
-          Hôm nay
-          <br />
-          <b>{formatVND(today)}</b>
+          Hôm nay <br /> <b>{formatVND(today)}</b>
         </div>
         <div style={card}>
-          Tháng này
-          <br />
-          <b>{formatVND(month)}</b>
+          Tháng này <br /> <b>{formatVND(month)}</b>
         </div>
       </div>
 
-      {/* ===== SO SÁNH ===== */}
+      {/* SO SÁNH */}
       <h3>📈 So sánh</h3>
 
       <CompareItem
@@ -299,46 +201,47 @@ function Dashboard({ onBack }) {
         current={compareToday?.[0]?.[0] || 0}
         prev={compareToday?.[0]?.[1] || 0}
         label1="Hôm nay"
-        label2="Tuần trước"
+        label2="Hôm qua"
       />
 
       <CompareItem
         title="Tuần này vs tuần trước"
-        current={compareWeek[0]}
-        prev={compareWeek[1]}
+        current={compareWeek?.[0] || 0}
+        prev={compareWeek?.[1] || 0}
         label1="Tuần này"
         label2="Tuần trước"
       />
 
       <CompareItem
         title="Tháng này vs tháng trước"
-        current={compareMonth[0]}
-        prev={compareMonth[1]}
+        current={compareMonth?.[0] || 0}
+        prev={compareMonth?.[1] || 0}
         label1="Tháng này"
         label2="Tháng trước"
       />
 
-      {/* ===== 7 NGÀY ===== */}
-      <h3 style={{ marginTop: 30 }}>📅 7 ngày gần nhất</h3>
-      <LineChart width="100%" height={300} data={last7Days}>
+      {/* 7 NGÀY */}
+      <h3>📅 7 ngày gần nhất</h3>
+      <LineChart width={800} height={300} data={last7Days}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="date" />
         <YAxis />
-        <Tooltip content={<LineTooltip />} />
+        <Tooltip />
         <Line dataKey="revenue" strokeWidth={2} />
       </LineChart>
 
-      {/* ===== BEST SELLER ===== */}
-      <h3 style={{ marginTop: 30 }}>🔥 Best Seller</h3>
+      {/* BEST SELLER */}
+      <h3>🔥 Best Seller</h3>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={bestSeller}>
-          <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip />
           <Bar dataKey="quantity" />
         </BarChart>
       </ResponsiveContainer>
+
+      {/* LEAST SELLER */}
 
       <h3 style={{ marginTop: 30 }}>❄️ Món bán ít</h3>
 
@@ -376,6 +279,7 @@ function Dashboard({ onBack }) {
         )}
       </div>
 
+      {/* ZERO */}
       <h3 style={{ marginTop: 30 }}>❄️ Món chưa bán</h3>
 
       <div
@@ -404,11 +308,10 @@ function Dashboard({ onBack }) {
         )}
       </div>
 
-      {/* ===== THEO NGÀY ===== */}
-      <h3 style={{ marginTop: 30 }}>📅 Doanh thu ngày bất kỳ</h3>
+      {/* DATE */}
+      <h3>📅 Doanh thu ngày</h3>
       <input type="date" onChange={(e) => setDate(e.target.value)} />
       <button onClick={loadByDate}>Xem</button>
-
       <h2>{formatVND(customRevenue)}</h2>
     </div>
   );
@@ -416,8 +319,8 @@ function Dashboard({ onBack }) {
 
 const card = {
   padding: 20,
-  borderRadius: 10,
   border: "1px solid #ddd",
+  borderRadius: 10,
   width: 200,
 };
 
