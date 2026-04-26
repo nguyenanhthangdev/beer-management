@@ -26,7 +26,8 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
     @Query(value = """
         SELECT COALESCE(SUM(o.total_amount), 0)
         FROM orders o
-        WHERE DATE(o.closed_at) = CURRENT_DATE
+        WHERE o.closed_at >= CURRENT_DATE
+          AND o.closed_at < DATEADD('DAY', 1, CURRENT_DATE)
           AND o.status = 'PAID'
     """, nativeQuery = true)
     Long revenueToday();
