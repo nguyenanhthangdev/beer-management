@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/statistics")
@@ -59,5 +60,15 @@ public class StatisticController {
     @GetMapping("/compare/month")
     public Object[] compareMonth() {
         return service.compareMonth();
+    }
+
+    @GetMapping("/low-seller")
+    public Map<String, List<Object[]>> stats() {
+        return service.getLowSeller();
+    }
+
+    @GetMapping("/zero-seller")
+    public List<String> zeroSeller() {
+        return service.getZeroSeller();
     }
 }

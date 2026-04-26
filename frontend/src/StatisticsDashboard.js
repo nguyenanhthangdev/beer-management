@@ -1,124 +1,3 @@
-// import { useState } from "react";
-// import axios from "axios";
-// import {
-//   BarChart,
-//   Bar,
-//   XAxis,
-//   YAxis,
-//   Tooltip,
-//   CartesianGrid,
-//   PieChart,
-//   Pie,
-//   Cell,
-// } from "recharts";
-
-// const API = "http://localhost:8080/api/statistics";
-
-// function StatisticsDashboard({ onBack }) {
-//   const [date, setDate] = useState("");
-//   const [revenue, setRevenue] = useState(0);
-//   const [bestSeller, setBestSeller] = useState([]);
-
-//   const formatVND = (n) => (n ? n.toLocaleString("vi-VN") + " VND" : "0 VND");
-
-//   // ===== API =====
-//   const loadToday = async () => {
-//     const today = new Date().toISOString().split("T")[0];
-//     const res = await axios.get(`${API}/day`, {
-//       params: { date: today },
-//     });
-//     setRevenue(res.data);
-//   };
-
-//   const loadByDate = async () => {
-//     const res = await axios.get(`${API}/day`, {
-//       params: { date },
-//     });
-//     setRevenue(res.data);
-//   };
-
-//   const loadBestSeller = async () => {
-//     const res = await axios.get(`${API}/best-seller`);
-
-//     const data = res.data.map((item) => ({
-//       name: item[0],
-//       quantity: item[1],
-//       revenue: item[2],
-//     }));
-
-//     setBestSeller(data);
-//   };
-
-//   return (
-//     <div
-//       style={{
-//         padding: 20,
-//         background: "#ffffff",
-//         minHeight: "100vh",
-//         color: "#000000",
-//       }}
-//     >
-//       <button onClick={onBack}>⬅ Quay lại</button>
-
-//       <h1>📊 Dashboard quán nhậu</h1>
-
-//       {/* DOANH THU */}
-//       <div style={{ marginTop: 20 }}>
-//         <h3>💰 Doanh thu</h3>
-
-//         <button onClick={loadToday}>Hôm nay</button>
-
-//         <div style={{ marginTop: 10 }}>
-//           <input type="date" onChange={(e) => setDate(e.target.value)} />
-//           <button onClick={loadByDate}>Xem theo ngày</button>
-//         </div>
-
-//         <h2 style={{ color: "#52c41a" }}>{formatVND(revenue)}</h2>
-//       </div>
-
-//       {/* BEST SELLER */}
-//       <div style={{ marginTop: 40 }}>
-//         <h3>🔥 Top món bán chạy</h3>
-//         <button onClick={loadBestSeller}>Load</button>
-
-//         <BarChart
-//           width={600}
-//           height={300}
-//           data={bestSeller}
-//           style={{ marginTop: 20 }}
-//         >
-//           <CartesianGrid strokeDasharray="3 3" />
-//           <XAxis dataKey="name" />
-//           <YAxis />
-//           <Tooltip />
-//           <Bar dataKey="quantity" />
-//         </BarChart>
-//       </div>
-
-//       {/* PIE CHART */}
-//       <div style={{ marginTop: 40 }}>
-//         <h3>📊 Tỷ lệ món bán</h3>
-
-//         <PieChart width={400} height={300}>
-//           <Pie
-//             data={bestSeller}
-//             dataKey="quantity"
-//             nameKey="name"
-//             outerRadius={100}
-//             label
-//           >
-//             {bestSeller.map((entry, index) => (
-//               <Cell key={index} />
-//             ))}
-//           </Pie>
-//         </PieChart>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default StatisticsDashboard;
-
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -142,6 +21,9 @@ function Dashboard({ onBack }) {
 
   const [bestSeller, setBestSeller] = useState([]);
   const [leastSeller, setLeastSeller] = useState([]);
+
+  const [lowSeller, setLowSeller] = useState([]);
+  const [zeroSeller, setZeroSeller] = useState([]);
 
   const [compareToday, setCompareToday] = useState([]);
   const [compareWeek, setCompareWeek] = useState([]);
@@ -240,21 +122,28 @@ function Dashboard({ onBack }) {
       })),
     );
 
-    const least = await axios.get(`${API}/least-seller`);
-    setBestSeller(
-      best.data
-        .sort((a, b) => b[1] - a[1]) // sort giảm dần
-        .slice(0, 5) // top 5
-        .map((i) => ({
-          name: i[0],
-          quantity: i[1],
-          revenue: i[2],
-        })),
-    );
+
+    const data = best.data.map((i) => ({
+      name: i[0],
+      quantity: i[1],
+    }));
+
+    // sort giảm dần
+    data.sort((a, b) => b.quantity - a.quantity);
+
+    // lấy mốc top 5
+    const top5Value = data[4]?.quantity;
+
+    // giữ lại tất cả món >= top 5 (xử lý đồng hạng)
+    const topData = data.filter((i) => i.quantity >= top5Value);
+
+    setBestSeller(topData);
 
     setCompareToday((await axios.get(`${API}/compare/today`)).data);
     setCompareWeek((await axios.get(`${API}/compare/week`)).data);
     setCompareMonth((await axios.get(`${API}/compare/month`)).data);
+
+
   };
 
   const loadByDate = async () => {
@@ -311,6 +200,15 @@ function Dashboard({ onBack }) {
   const CompareItem = ({ title, current, prev, label1, label2 }) => {
     const { diff, percent, isUp } = calcCompare(current || 0, prev || 0);
 
+
+    useEffect(() => {
+      loadZeroSeller();
+    }, []);
+    const loadZeroSeller = async () => {
+      const res = await axios.get(`${API}/zero-seller`);
+      setZeroSeller(res.data);
+    };
+
     return (
       <div
         style={{
@@ -347,7 +245,7 @@ function Dashboard({ onBack }) {
       </div>
     );
   };
-
+  console.log("lowSeller:", lowSeller);
   return (
     <div
       style={{
@@ -424,13 +322,69 @@ function Dashboard({ onBack }) {
         </BarChart>
       </ResponsiveContainer>
 
-      {/* ===== LEAST SELLER ===== */}
-      <h3 style={{ marginTop: 30 }}>❄️ Món ế</h3>
-      {leastSeller.map((i, idx) => (
-        <div key={idx}>
-          {i.name} - {i.quantity}
-        </div>
-      ))}
+      <h3 style={{ marginTop: 30 }}>❄️ Món bán ít</h3>
+
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 12,
+          padding: 15,
+          border: "1px solid #eee",
+          maxWidth: 500,
+        }}
+      >
+        {leastSeller.length === 0 ? (
+          <div style={{ color: "#888" }}>Không có dữ liệu</div>
+        ) : (
+          leastSeller.slice(0, 10).map((item, index) => (
+            <div
+              key={item.name}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                padding: "8px 0",
+                borderBottom: "1px solid #f0f0f0",
+              }}
+            >
+              <span>
+                {index + 1}. {item.name}
+              </span>
+
+              <span style={{ fontWeight: "bold", color: "#ff4d4f" }}>
+                {item.quantity}
+              </span>
+            </div>
+          ))
+        )}
+      </div>
+
+      <h3 style={{ marginTop: 30 }}>❄️ Món chưa bán</h3>
+
+      <div
+        style={{
+          background: "#fafafa",
+          padding: 15,
+          borderRadius: 10,
+          border: "1px solid #eee",
+          maxWidth: 400,
+        }}
+      >
+        {zeroSeller.length === 0 ? (
+          <div>🎉 Không có món nào bị ế</div>
+        ) : (
+          zeroSeller.map((name, i) => (
+            <div
+              key={i}
+              style={{
+                padding: "6px 0",
+                borderBottom: "1px solid #eee",
+              }}
+            >
+              ⚠️ {name}
+            </div>
+          ))
+        )}
+      </div>
 
       {/* ===== THEO NGÀY ===== */}
       <h3 style={{ marginTop: 30 }}>📅 Doanh thu ngày bất kỳ</h3>

@@ -7,7 +7,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class StatisticService {
@@ -96,6 +97,49 @@ public class StatisticService {
         );
 
         return new Object[]{thisMonth, lastMonth};
+    }
+
+//    public List<Object[]> getLowSeller() {
+//        return itemRepo.lowSeller();
+//    }
+
+    public Map<String, List<Object[]>> getLowSeller() {
+
+        List<Object[]> all = itemRepo.bestSeller();
+
+        // sort giảm dần theo số lượng
+        all.sort((a, b) -> Long.compare((Long) b[1], (Long) a[1]));
+
+        // ===== BEST SELLER =====
+        List<Object[]> best = all.stream()
+                .limit(5)
+                .toList();
+
+        Set<String> bestNames = best.stream()
+                .map(i -> (String) i[0])
+                .collect(Collectors.toSet());
+
+        // ===== LEAST SELLER =====
+        List<Object[]> least = all.stream()
+                .filter(i -> {
+                    String name = (String) i[0];
+                    Long qty = (Long) i[1];
+
+                    return qty > 0                      // ❌ loại món chưa bán
+                            && !bestNames.contains(name); // ❌ loại best seller
+                })
+                .sorted(Comparator.comparing(i -> (Long) i[1])) // tăng dần
+                .toList(); // 🔥 KHÔNG LIMIT
+
+        Map<String, List<Object[]>> result = new HashMap<>();
+        result.put("best", best);
+        result.put("least", least);
+
+        return result;
+    }
+
+    public List<String> getZeroSeller() {
+        return itemRepo.zeroSeller();
     }
 
 }
