@@ -273,24 +273,38 @@ function Dashboard({ onBack }) {
 
       {/* 7 NGÀY */}
       <h3>📅 7 ngày gần nhất</h3>
-      <LineChart width="100%" height={400} data={last7Days}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="date" />
-        <YAxis />
-        <Tooltip />
-        <Line dataKey="revenue" strokeWidth={2} />
-      </LineChart>
+      <div style={{ overflowX: "auto" }}>
+        <div style={{ minWidth: 700 }}>
+          <LineChart width="100%" height={400} data={last7Days}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Line dataKey="revenue" strokeWidth={2} />
+          </LineChart>
+        </div>
+      </div>
 
       {/* BEST SELLER */}
       <h3>🔥 Best Seller</h3>
-      <ResponsiveContainer width="100%" height={400}>
-        <BarChart data={bestSeller}>
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="quantity" />
-        </BarChart>
-      </ResponsiveContainer>
+      <div style={{ overflowX: "auto" }}>
+        <div style={{ minWidth: 600 }}>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={bestSeller}>
+              <XAxis
+                dataKey="name"
+                interval={0}
+                tickFormatter={(name) =>
+                  name.length > 10 ? name.substring(0, 10) + "..." : name
+                }
+              />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="quantity" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
 
       {/* LEAST SELLER */}
 
