@@ -4,7 +4,7 @@ import Swal from "sweetalert2";
 import StatisticsDashboard from "./StatisticsDashboard";
 import "./index.css";
 
-const API = `${process.env.REACT_APP_API}/statistics`;
+const API = "https://beer-management.onrender.com/api/statistics";
 
 function App() {
   const [tables, setTables] = useState([]);
