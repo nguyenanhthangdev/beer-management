@@ -25,6 +25,8 @@ function App() {
     loadProducts();
   }, []);
 
+  console.log("VIEW:", view);
+  console.log("API:", API);
   const toggleServed = async (item) => {
     await axios.put(
       `${API}/order-items/${item.id}/served?served=${!item.served}`,
