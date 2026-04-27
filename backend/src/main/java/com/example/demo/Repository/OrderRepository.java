@@ -40,12 +40,12 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
 
     // ===== 7 NGÀY =====
     @Query(value = """
-        SELECT DATE(o.closed_at), SUM(o.total_amount)
+        SELECT CAST(o.closed_at AS DATE), SUM(o.total_amount)
         FROM orders o
-        WHERE o.closed_at >= CURDATE() - INTERVAL 7 DAY
+        WHERE o.closed_at >= CURRENT_DATE - INTERVAL '7 days'
           AND o.status = 'PAID'
-        GROUP BY DATE(o.closed_at)
-        ORDER BY DATE(o.closed_at)
+        GROUP BY CAST(o.closed_at AS DATE)
+        ORDER BY CAST(o.closed_at AS DATE)
     """, nativeQuery = true)
     List<Object[]> last7Days();
 
