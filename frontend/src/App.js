@@ -239,16 +239,31 @@ function App() {
     <div style={{ padding: 20, background: "#f4f4f4", minHeight: "100vh" }}>
       {!selectedTable ? (
         <>
+          {/* 🔙 NÚT QUAY LẠI */}
+          <button
+            onClick={() => {
+              setSelectedTable(null);
+              setOrderItems([]);
+              setTotal(0);
+            }}
+            style={{
+              marginBottom: 10,
+              padding: "8px 12px",
+              borderRadius: 8,
+              background: "#ccc",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            🔙 Quay lại
+          </button>
           <h2 style={{ marginBottom: 20 }}>🍺 Danh sách bàn</h2>
 
           <button onClick={addTable} style={{ marginBottom: 15 }}>
             ➕ Thêm bàn
           </button>
 
-          <button
-            onClick={() => setView("stats")}
-            style={{ marginBottom: 15 }}
-          >
+          <button onClick={() => setView("stats")} style={{ marginBottom: 15 }}>
             📊 Thống kê
           </button>
 
