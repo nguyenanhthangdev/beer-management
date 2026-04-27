@@ -58,17 +58,35 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
     List<Object[]> getLast7DaysRaw();
 
     // ===== SO SÁNH =====
+//    @Query(value = """
+//        SELECT
+//          (SELECT SUM(o.total_amount)
+//           FROM orders o
+//           WHERE DATE(o.closed_at) = CURDATE()
+//             AND o.status = 'PAID') AS today,
+//
+//          (SELECT SUM(o.total_amount)
+//           FROM orders o
+//           WHERE DATE(o.closed_at) = CURDATE() - INTERVAL 1 DAY
+//             AND o.status = 'PAID') AS yesterday
+//    """, nativeQuery = true)
+//    Object[] compareToday();
+
     @Query(value = """
         SELECT
-          (SELECT SUM(o.total_amount)
-           FROM orders o
-           WHERE DATE(o.closed_at) = CURDATE()
-             AND o.status = 'PAID') AS today,
-
-          (SELECT SUM(o.total_amount)
-           FROM orders o
-           WHERE DATE(o.closed_at) = CURDATE() - INTERVAL 1 DAY
-             AND o.status = 'PAID') AS yesterday
+          COALESCE((
+            SELECT SUM(o.total_amount)
+            FROM orders o
+            WHERE DATE(o.closed_at) = CURDATE()
+              AND o.status = 'PAID'
+          ), 0) AS today,
+    
+          COALESCE((
+            SELECT SUM(o.total_amount)
+            FROM orders o
+            WHERE DATE(o.closed_at) = CURDATE() - INTERVAL 1 DAY
+              AND o.status = 'PAID'
+          ), 0) AS yesterday
     """, nativeQuery = true)
     Object[] compareToday();
 

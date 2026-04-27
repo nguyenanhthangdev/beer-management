@@ -230,6 +230,7 @@ function Dashboard({ onBack }) {
     );
   };
 
+  console.log("compareToday:", compareToday);
   return (
     <div style={{ padding: 30, background: "#fff", minHeight: "100vh" }}>
       <button onClick={onBack}>⬅ Quay lại</button>
@@ -251,8 +252,8 @@ function Dashboard({ onBack }) {
 
       <CompareItem
         title="Hôm nay vs hôm qua"
-        current={compareToday?.[0]?.[0] || 0}
-        prev={compareToday?.[0]?.[1] || 0}
+        current={compareToday?.[0] || 0}
+        prev={compareToday?.[1] || 0}
         label1="Hôm nay"
         label2="Hôm qua"
       />
