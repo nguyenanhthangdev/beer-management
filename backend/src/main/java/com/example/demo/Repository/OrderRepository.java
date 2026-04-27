@@ -52,11 +52,11 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
     @Query("""
         SELECT o.closedAt, o.totalAmount
         FROM Orders o
-        WHERE o.closedAt >= :start
-          AND o.closedAt < :end
-          AND o.status = 'PAID'
+        WHERE o.status = 'PAID'
+          AND o.closedAt IS NOT NULL
     """)
-    List<Object[]> getLast7DaysRaw(LocalDateTime start, LocalDateTime end);
+    List<Object[]> getLast7DaysRaw();
+    
     // ===== SO SÁNH =====
     @Query(value = """
         SELECT

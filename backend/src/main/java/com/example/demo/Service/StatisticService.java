@@ -44,29 +44,38 @@ public class StatisticService {
 //    }
 
     public List<Object[]> last7Days() {
+        List<Object[]> result = new ArrayList<>();
+
         try {
-            LocalDate today = LocalDate.now();
-            LocalDateTime start = today.minusDays(6).atStartOfDay();
-            LocalDateTime end = today.plusDays(1).atStartOfDay();
-
-            List<Object[]> data = orderRepo.getLast7DaysRaw(start, end);
-
-            System.out.println("DATA SIZE: " + data.size()); // 👈 log
+            List<Object[]> data = orderRepo.getLast7DaysRaw();
 
             Map<LocalDate, Long> map = new HashMap<>();
 
             for (Object[] row : data) {
-                System.out.println(Arrays.toString(row)); // 👈 log từng row
+                try {
+                    Object timeObj = row[0];
+                    Object amountObj = row[1];
 
-                LocalDateTime dt = (LocalDateTime) row[0];
-                LocalDate date = dt.toLocalDate();
+                    LocalDate date;
 
-                Long amount = ((Number) row[1]).longValue();
+                    if (timeObj instanceof LocalDateTime) {
+                        date = ((LocalDateTime) timeObj).toLocalDate();
+                    } else if (timeObj instanceof java.sql.Timestamp) {
+                        date = ((Timestamp) timeObj).toLocalDateTime().toLocalDate();
+                    } else {
+                        continue;
+                    }
 
-                map.put(date, map.getOrDefault(date, 0L) + amount);
+                    Long amount = ((Number) amountObj).longValue();
+
+                    map.put(date, map.getOrDefault(date, 0L) + amount);
+
+                } catch (Exception e) {
+                    System.out.println("ROW ERROR: " + Arrays.toString(row));
+                }
             }
 
-            List<Object[]> result = new ArrayList<>();
+            LocalDate today = LocalDate.now();
 
             for (int i = 6; i >= 0; i--) {
                 LocalDate d = today.minusDays(i);
@@ -76,12 +85,11 @@ public class StatisticService {
                 });
             }
 
-            return result;
-
         } catch (Exception e) {
-            e.printStackTrace(); // 👈 QUAN TRỌNG NHẤT
-            return new ArrayList<>();
+            e.printStackTrace(); // 👈 QUAN TRỌNG
         }
+
+        return result;
     }
 
     // ===== BEST / LEAST =====
