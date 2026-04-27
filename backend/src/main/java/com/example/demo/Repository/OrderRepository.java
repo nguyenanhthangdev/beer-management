@@ -24,12 +24,12 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
     // ===== DOANH THU =====
 
     @Query(value = """
-        SELECT COALESCE(SUM(o.total_amount), 0)
-        FROM orders o
-        WHERE o.closed_at >= CURRENT_DATE
-          AND o.closed_at < DATEADD('DAY', 1, CURRENT_DATE)
-          AND o.status = 'PAID'
-    """, nativeQuery = true)
+    SELECT COALESCE(SUM(o.total_amount), 0)
+    FROM orders o
+    WHERE o.closed_at >= CURRENT_DATE
+      AND o.closed_at < DATEADD('DAY', 1, CURRENT_DATE)
+      AND o.status = 'PAID'
+""", nativeQuery = true)
     Long revenueToday();
 
     @Query("SELECT SUM(o.totalAmount) FROM Orders o WHERE MONTH(o.closedAt) = MONTH(CURRENT_DATE) AND YEAR(o.closedAt) = YEAR(CURRENT_DATE) AND o.status = 'PAID'")
@@ -40,14 +40,22 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
 
     // ===== 7 NGÀY =====
     @Query(value = """
-        SELECT CAST(o.closed_at AS DATE), SUM(o.total_amount)
+        SELECT DATE(o.closed_at), SUM(o.total_amount)
+        FROM orders o
+        WHERE o.closed_at >= CURDATE() - INTERVAL 7 DAY
+          AND o.status = 'PAID'
+        GROUP BY DATE(o.closed_at)
+        ORDER BY DATE(o.closed_at)
+    """, nativeQuery = true)
+    List<Object[]> last7Days();
+
+    @Query(value = """
+        SELECT o.closed_at, o.total_amount
         FROM orders o
         WHERE o.closed_at >= CURRENT_DATE - INTERVAL '7 days'
           AND o.status = 'PAID'
-        GROUP BY CAST(o.closed_at AS DATE)
-        ORDER BY CAST(o.closed_at AS DATE)
     """, nativeQuery = true)
-    List<Object[]> last7Days();
+    List<Object[]> getLast7DaysRaw();
 
     // ===== SO SÁNH =====
     @Query(value = """

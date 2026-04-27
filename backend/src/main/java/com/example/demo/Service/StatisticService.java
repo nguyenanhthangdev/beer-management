@@ -5,6 +5,7 @@ import com.example.demo.Repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -38,8 +39,37 @@ public class StatisticService {
 
     // ===== 7 NGÀY =====
 
+//    public List<Object[]> last7Days() {
+//        return orderRepo.last7Days();
+//    }
+
     public List<Object[]> last7Days() {
-        return orderRepo.last7Days();
+        List<Object[]> data = orderRepo.getLast7DaysRaw();
+
+        Map<LocalDate, Long> map = new HashMap<>();
+
+        for (Object[] row : data) {
+            Timestamp ts = (Timestamp) row[0];
+            LocalDate date = ts.toLocalDateTime().toLocalDate();
+
+            Long amount = ((Number) row[1]).longValue();
+
+            map.put(date, map.getOrDefault(date, 0L) + amount);
+        }
+
+        // tạo đủ 7 ngày (kể cả ngày không có data)
+        List<Object[]> result = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+
+        for (int i = 6; i >= 0; i--) {
+            LocalDate d = today.minusDays(i);
+            result.add(new Object[]{
+                    d.toString(),
+                    map.getOrDefault(d, 0L)
+            });
+        }
+
+        return result;
     }
 
     // ===== BEST / LEAST =====
