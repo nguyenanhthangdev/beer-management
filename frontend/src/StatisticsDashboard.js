@@ -33,7 +33,6 @@ function Dashboard({ onBack }) {
 
   const [loadingDay, setLoadingDay] = useState(false);
   const [hover, setHover] = useState(false);
-  
 
   const formatVND = (value) => {
     const num = Number(value);
@@ -116,17 +115,28 @@ function Dashboard({ onBack }) {
       quantity: i[1],
     }));
 
-    const sorted = [...data].sort((a, b) => b.quantity - a.quantity);
+    // ❗ bỏ món chưa bán
+    const soldOnly = data.filter((i) => i.quantity > 0);
 
-    const top5Value = sorted[4]?.quantity;
+    // sort giảm dần
+    const sorted = [...soldOnly].sort((a, b) => b.quantity - a.quantity);
 
-    const best = sorted.filter((i) => i.quantity >= top5Value);
+    // ===== BEST SELLER =====
+    let best = [];
+
+    if (sorted.length <= 5) {
+      best = sorted;
+    } else {
+      const top5Value = sorted[4].quantity;
+      best = sorted.filter((i) => i.quantity >= top5Value);
+    }
+
     setBestSeller(best);
 
+    // ===== LEAST SELLER =====
     const bestSet = new Set(best.map((i) => i.name));
 
     const least = sorted
-      .filter((i) => i.quantity > 0)
       .filter((i) => !bestSet.has(i.name))
       .sort((a, b) => a.quantity - b.quantity);
 

@@ -56,7 +56,7 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
           AND o.closedAt IS NOT NULL
     """)
     List<Object[]> getLast7DaysRaw();
-    
+
     // ===== SO SÁNH =====
     @Query(value = """
         SELECT
