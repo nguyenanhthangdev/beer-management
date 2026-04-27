@@ -57,16 +57,6 @@ function Dashboard({ onBack }) {
     marginTop: 10,
   };
 
-  const dateBtn = {
-    marginTop: 10,
-    padding: "8px 12px",
-    borderRadius: 8,
-    border: "none",
-    background: "#1890ff",
-    color: "#fff",
-    cursor: "pointer",
-  };
-
   const resultBox = {
     marginTop: 15,
     padding: 10,
