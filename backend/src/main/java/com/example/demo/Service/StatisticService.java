@@ -44,38 +44,44 @@ public class StatisticService {
 //    }
 
     public List<Object[]> last7Days() {
-        LocalDate today = LocalDate.now();
-        LocalDateTime start = today.minusDays(6).atStartOfDay();
-        LocalDateTime end = today.plusDays(1).atStartOfDay();
+        try {
+            LocalDate today = LocalDate.now();
+            LocalDateTime start = today.minusDays(6).atStartOfDay();
+            LocalDateTime end = today.plusDays(1).atStartOfDay();
 
-        List<Object[]> data = orderRepo.getLast7DaysRaw(start, end);
+            List<Object[]> data = orderRepo.getLast7DaysRaw(start, end);
 
-        Map<LocalDate, Long> map = new HashMap<>();
+            System.out.println("DATA SIZE: " + data.size()); // 👈 log
 
-        for (Object[] row : data) {
-            try {
+            Map<LocalDate, Long> map = new HashMap<>();
+
+            for (Object[] row : data) {
+                System.out.println(Arrays.toString(row)); // 👈 log từng row
+
                 LocalDateTime dt = (LocalDateTime) row[0];
                 LocalDate date = dt.toLocalDate();
 
                 Long amount = ((Number) row[1]).longValue();
 
                 map.put(date, map.getOrDefault(date, 0L) + amount);
-            } catch (Exception e) {
-                System.out.println("ERROR ROW: " + Arrays.toString(row));
             }
+
+            List<Object[]> result = new ArrayList<>();
+
+            for (int i = 6; i >= 0; i--) {
+                LocalDate d = today.minusDays(i);
+                result.add(new Object[]{
+                        d.toString(),
+                        map.getOrDefault(d, 0L)
+                });
+            }
+
+            return result;
+
+        } catch (Exception e) {
+            e.printStackTrace(); // 👈 QUAN TRỌNG NHẤT
+            return new ArrayList<>();
         }
-
-        List<Object[]> result = new ArrayList<>();
-
-        for (int i = 6; i >= 0; i--) {
-            LocalDate d = today.minusDays(i);
-            result.add(new Object[]{
-                    d.toString(),
-                    map.getOrDefault(d, 0L)
-            });
-        }
-
-        return result;
     }
 
     // ===== BEST / LEAST =====
