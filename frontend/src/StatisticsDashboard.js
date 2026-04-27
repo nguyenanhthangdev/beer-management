@@ -12,7 +12,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import "./index.css";
-const API = "http://localhost:8080/api/statistics";
+
+const API = "https://beer-management.onrender.com/api/statistics";
 
 function Dashboard({ onBack }) {
   const [today, setToday] = useState(0);
