@@ -251,7 +251,7 @@ function App() {
           </button>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: 15 }}>
-            {tables.map((t) => (
+            {(tables || []).map((t) => (
               <div
                 key={t.id}
                 style={{
@@ -294,7 +294,7 @@ function App() {
           </button>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-            {products.map((p) => (
+            {(products || []).map((p) => (
               <div
                 key={p.id}
                 style={{
@@ -321,7 +321,7 @@ function App() {
           {/* ORDER */}
           <h3 style={{ marginTop: 20 }}>🧾 Món đã gọi</h3>
           <div style={{ background: "white", borderRadius: 10 }}>
-            {orderItems.map((item) => (
+            {(orderItems || []).map((item) => (
               <div
                 key={item.id}
                 style={{
