@@ -49,15 +49,21 @@ public class StatisticService {
         Map<LocalDate, Long> map = new HashMap<>();
 
         for (Object[] row : data) {
-            Timestamp ts = (Timestamp) row[0];
-            LocalDate date = ts.toLocalDateTime().toLocalDate();
+            LocalDate date;
+
+            if (row[0] instanceof Timestamp) {
+                date = ((Timestamp) row[0]).toLocalDateTime().toLocalDate();
+            } else if (row[0] instanceof LocalDateTime) {
+                date = ((LocalDateTime) row[0]).toLocalDate();
+            } else {
+                continue; // tránh crash
+            }
 
             Long amount = ((Number) row[1]).longValue();
 
             map.put(date, map.getOrDefault(date, 0L) + amount);
         }
 
-        // tạo đủ 7 ngày (kể cả ngày không có data)
         List<Object[]> result = new ArrayList<>();
         LocalDate today = LocalDate.now();
 
