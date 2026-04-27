@@ -44,28 +44,28 @@ public class StatisticService {
 //    }
 
     public List<Object[]> last7Days() {
-        List<Object[]> data = orderRepo.getLast7DaysRaw();
+        LocalDate today = LocalDate.now();
+        LocalDateTime start = today.minusDays(6).atStartOfDay();
+        LocalDateTime end = today.plusDays(1).atStartOfDay();
+
+        List<Object[]> data = orderRepo.getLast7DaysRaw(start, end);
 
         Map<LocalDate, Long> map = new HashMap<>();
 
         for (Object[] row : data) {
-            LocalDate date;
+            try {
+                LocalDateTime dt = (LocalDateTime) row[0];
+                LocalDate date = dt.toLocalDate();
 
-            if (row[0] instanceof Timestamp) {
-                date = ((Timestamp) row[0]).toLocalDateTime().toLocalDate();
-            } else if (row[0] instanceof LocalDateTime) {
-                date = ((LocalDateTime) row[0]).toLocalDate();
-            } else {
-                continue; // tránh crash
+                Long amount = ((Number) row[1]).longValue();
+
+                map.put(date, map.getOrDefault(date, 0L) + amount);
+            } catch (Exception e) {
+                System.out.println("ERROR ROW: " + Arrays.toString(row));
             }
-
-            Long amount = ((Number) row[1]).longValue();
-
-            map.put(date, map.getOrDefault(date, 0L) + amount);
         }
 
         List<Object[]> result = new ArrayList<>();
-        LocalDate today = LocalDate.now();
 
         for (int i = 6; i >= 0; i--) {
             LocalDate d = today.minusDays(i);

@@ -49,14 +49,14 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
 //    """, nativeQuery = true)
 //    List<Object[]> last7Days();
 
-    @Query(value = """
-        SELECT o.closed_at, o.total_amount
-        FROM orders o
-        WHERE o.closed_at >= CURRENT_DATE - INTERVAL '7 days'
+    @Query("""
+        SELECT o.closedAt, o.totalAmount
+        FROM Orders o
+        WHERE o.closedAt >= :start
+          AND o.closedAt < :end
           AND o.status = 'PAID'
-    """, nativeQuery = true)
-    List<Object[]> getLast7DaysRaw();
-
+    """)
+    List<Object[]> getLast7DaysRaw(LocalDateTime start, LocalDateTime end);
     // ===== SO SÁNH =====
     @Query(value = """
         SELECT
