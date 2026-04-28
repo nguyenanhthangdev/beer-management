@@ -29,4 +29,9 @@ public class OrderController {
     public List<Orders> getAllOrders() {
         return service.getAll();
     }
+
+    @DeleteMapping("/all")
+    public void deleteAll() {
+        service.deleteAll();
+    }
 }

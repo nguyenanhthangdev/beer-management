@@ -38,6 +38,10 @@ public class OrderItemService {
         return repo.save(item);
     }
 
+    public void deleteAll() {
+        repo.deleteAll();
+    }
+
     public List<OrderItem> getByOrder(Long orderId) {
         return repo.findByOrderId(orderId);
     }

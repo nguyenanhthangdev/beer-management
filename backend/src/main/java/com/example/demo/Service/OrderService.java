@@ -28,6 +28,10 @@ public class OrderService {
         return repo.findAll();
     }
 
+    public void deleteAll() {
+        repo.deleteAll();
+    }
+
     public Orders openOrder(Long tableId) {
 
         TableEntity table = tableRepo.findById(tableId).orElseThrow();

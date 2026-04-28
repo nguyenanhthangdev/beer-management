@@ -40,6 +40,11 @@ public class OrderItemController {
         return ResponseEntity.ok("Đã xóa thành công");
     }
 
+    @DeleteMapping("/all")
+    public void deleteAll() {
+        service.deleteAll();
+    }
+
     @PostMapping
     public void addItem(@RequestBody OrderItem item) {
         service.addItem(
