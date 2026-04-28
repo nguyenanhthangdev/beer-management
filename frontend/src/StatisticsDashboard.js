@@ -41,7 +41,7 @@ function Dashboard({ onBack }) {
   };
 
   console.log("compareToday:", compareToday);
-  
+
   const dateCard = {
     marginTop: 30,
     padding: 20,
@@ -251,7 +251,6 @@ function Dashboard({ onBack }) {
       {/* SO SÁNH */}
       <h3>📈 So sánh</h3>
 
-console.log("compareToday:", compareToday);
       <CompareItem
         title="Hôm nay vs hôm qua"
         current={compareToday?.[0] || 0}

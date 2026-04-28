@@ -48,7 +48,7 @@ public class StatisticController {
 
     @GetMapping("/compare/today")
     public Object[] compareToday() {
-        return service.compareTodayVsYesterday();
+        return service.compareToday();
     }
 
     @GetMapping("/compare/week")

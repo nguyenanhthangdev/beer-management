@@ -88,7 +88,7 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
               AND o.status = 'PAID'
           ), 0) AS yesterday
     """, nativeQuery = true)
-    Object[] compareToday();
+    List<Object[]> compareToday();
 
     @Query("""
         SELECT SUM(o.totalAmount)

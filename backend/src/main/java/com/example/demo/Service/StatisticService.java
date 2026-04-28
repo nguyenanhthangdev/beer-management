@@ -101,18 +101,18 @@ public class StatisticService {
 
     // ===== SO SÁNH =====
 
-    public Object[] compareTodayVsYesterday() {
-        return orderRepo.compareToday();
-    }
+//    public Object[] compareTodayVsYesterday() {
+//        return orderRepo.compareToday();
+//    }
 
     public Object[] compareToday() {
-        LocalDate today = LocalDate.now();
-        LocalDate yesterday = today.minusDays(1);
+        List<Object[]> result = orderRepo.compareToday();
 
-        Long todayRevenue = orderRepo.sumByDate(today);
-        Long yesterdayRevenue = orderRepo.sumByDate(yesterday);
+        if (result.isEmpty()) {
+            return new Object[]{0, 0};
+        }
 
-        return new Object[]{todayRevenue, yesterdayRevenue};
+        return result.get(0);
     }
 
     public Object[] compareWeek() {
