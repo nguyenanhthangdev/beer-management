@@ -18,8 +18,8 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
     @Query(value = """
         SELECT COALESCE(SUM(o.total_amount), 0)
         FROM orders o
-        WHERE o.closed_at >= CURRENT_DATE
-          AND o.closed_at < CURRENT_DATE + INTERVAL '1 day'
+        WHERE o.closed_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Ho_Chi_Minh' >= DATE_TRUNC('day', NOW() AT TIME ZONE 'Asia/Ho_Chi_Minh')
+          AND o.closed_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Ho_Chi_Minh' < DATE_TRUNC('day', NOW() AT TIME ZONE 'Asia/Ho_Chi_Minh') + INTERVAL '1 day'
           AND o.status = 'PAID'
     """, nativeQuery = true)
     Long revenueToday();

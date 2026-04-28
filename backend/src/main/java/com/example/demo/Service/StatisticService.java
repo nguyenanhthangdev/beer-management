@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,7 +59,10 @@ public class StatisticService {
                     LocalDate date;
 
                     if (timeObj instanceof LocalDateTime) {
-                        date = ((LocalDateTime) timeObj).toLocalDate();
+                        date = ((LocalDateTime) timeObj)
+                                .atZone(ZoneId.of("UTC"))
+                                .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+                                .toLocalDate();
                     } else if (timeObj instanceof java.sql.Timestamp) {
                         date = ((Timestamp) timeObj).toLocalDateTime().toLocalDate();
                     } else {
@@ -74,7 +78,7 @@ public class StatisticService {
                 }
             }
 
-            LocalDate today = LocalDate.now();
+            LocalDate today = LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh"));
 
             for (int i = 6; i >= 0; i--) {
                 LocalDate d = today.minusDays(i);
