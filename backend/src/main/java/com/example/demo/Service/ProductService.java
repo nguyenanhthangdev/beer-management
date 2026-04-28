@@ -21,6 +21,10 @@ public class ProductService {
         return repo.save(p);
     }
 
+    public List<Product> addBulk(List<Product> products) {
+        return repo.saveAll(products);
+    }
+
     public Product update(Long id, Product p) {
         Product old = repo.findById(id).orElseThrow();
         old.setName(p.getName());

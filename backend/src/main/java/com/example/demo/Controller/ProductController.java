@@ -34,4 +34,9 @@ public class ProductController {
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
+
+    @PostMapping("/products/bulk")
+    public List<Product> addBulk(@RequestBody List<Product> products) {
+        return service.addBulk(products);
+    }
 }
