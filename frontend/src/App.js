@@ -43,14 +43,19 @@ function App() {
     setProducts(res.data);
   };
 
-  const openTable = async (table) => {
-    if (!table?.id) return;
-
-    const res = await axios.post(`${API}/orders/open/${table.id}`);
+  const openTable = (table) => {
     setSelectedTable(table);
+  };
+
+  const confirmOpenTable = async () => {
+    if (!selectedTable) return;
+
+    const res = await axios.post(`${API}/orders/open/${selectedTable.id}`);
+
     setOrderId(res.data.id);
     loadOrderItems(res.data.id);
 
+    // 🔥 reload lại danh sách bàn để update status
     loadTables();
   };
 
@@ -67,10 +72,13 @@ function App() {
   };
 
   const addItem = async (product) => {
-    if (!orderId) return;
+    if (!orderId) {
+      Swal.fire("Bạn chưa mở bàn!");
+      return;
+    }
 
     await axios.post(`${API}/order-items`, {
-      orderId: orderId,
+      orderId,
       productId: product.id,
       quantity: 1,
     });
@@ -309,6 +317,25 @@ function App() {
             🔙 Quay lại
           </button>
           <h2>🍻 {selectedTable.name}</h2>
+
+          {selectedTable && !orderId && (
+            <div style={{ marginBottom: 15 }}>
+              <button
+                onClick={confirmOpenTable}
+                style={{
+                  padding: "10px 15px",
+                  borderRadius: 10,
+                  background: "#1890ff",
+                  color: "white",
+                  border: "none",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                }}
+              >
+                ✅ Xác nhận mở bàn
+              </button>
+            </div>
+          )}
 
           {/* MENU */}
           <h3 style={{ marginTop: 20 }}>Menu</h3>
