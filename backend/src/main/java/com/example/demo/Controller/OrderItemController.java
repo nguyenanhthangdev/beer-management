@@ -49,6 +49,11 @@ public class OrderItemController {
         );
     }
 
+    @GetMapping
+    public List<OrderItem> getAllItems() {
+        return orderItemService.getAll();
+    }
+
     @PutMapping("/{id}/served")
     public void updateServed(@PathVariable Long id, @RequestParam Boolean served) {
         service.updateServed(id, served);

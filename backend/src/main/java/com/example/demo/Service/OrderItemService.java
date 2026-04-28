@@ -59,6 +59,10 @@ public class OrderItemService {
         return total;
     }
 
+    public List<OrderItem> getAll() {
+        return repo.findAll();
+    }
+
     public void delete(Long id) {
         if (!repo.existsById(id)) {
             throw new RuntimeException("Không tìm thấy món để xóa");

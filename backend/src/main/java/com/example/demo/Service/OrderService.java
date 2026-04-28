@@ -24,6 +24,10 @@ public class OrderService {
     @Autowired
     private OrderItemRepository itemRepo;
 
+    public List<Orders> getAll() {
+        return repo.findAll();
+    }
+
     public Orders openOrder(Long tableId) {
 
         TableEntity table = tableRepo.findById(tableId).orElseThrow();
