@@ -51,6 +51,8 @@ function App() {
     setSelectedTable(table);
     setOrderId(res.data.id);
     loadOrderItems(res.data.id);
+
+    loadTables();
   };
 
   const loadOrderItems = async (orderId) => {
@@ -289,6 +291,7 @@ function App() {
               setSelectedTable(null);
               setOrderItems([]);
               setTotal(0);
+              loadTables();
             }}
             style={{
               marginBottom: 10,

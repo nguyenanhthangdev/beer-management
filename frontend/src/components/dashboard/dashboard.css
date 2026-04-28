@@ -1,0 +1,19 @@
+.compare-card {
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  background: white;
+}
+
+.card {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  width: 200px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+}
