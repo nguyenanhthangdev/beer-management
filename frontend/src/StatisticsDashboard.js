@@ -40,6 +40,8 @@ function Dashboard({ onBack }) {
     return Math.floor(num).toLocaleString("vi-VN") + " VND";
   };
 
+  console.log("compareToday:", compareToday);
+  
   const dateCard = {
     marginTop: 30,
     padding: 20,
@@ -230,7 +232,6 @@ function Dashboard({ onBack }) {
     );
   };
 
-  console.log("compareToday:", compareToday);
   return (
     <div style={{ padding: 30, background: "#fff", minHeight: "100vh" }}>
       <button onClick={onBack}>⬅ Quay lại</button>
