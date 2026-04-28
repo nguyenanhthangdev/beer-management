@@ -25,8 +25,6 @@ function App() {
     loadProducts();
   }, []);
 
-  console.log("VIEW:", view);
-  console.log("API:", API);
   const toggleServed = async (item) => {
     await axios.put(
       `${API}/order-items/${item.id}/served?served=${!item.served}`,
@@ -58,7 +56,11 @@ function App() {
 
   const loadOrderItems = async (orderId) => {
     const res = await axios.get(`${API}/order-items/${orderId}`);
-    setOrderItems(res.data);
+
+    // 🔥 FIX GIỮ ORDER CỐ ĐỊNH
+    const sorted = res.data.sort((a, b) => a.id - b.id);
+
+    setOrderItems(sorted);
 
     const totalRes = await axios.get(`${API}/order-items/${orderId}/total`);
     setTotal(totalRes.data);
@@ -361,7 +363,17 @@ function App() {
 
                 <div style={{ display: "flex", gap: 10 }}>
                   {/* NÚT XÁC NHẬN */}
-                  <button onClick={() => toggleServed(item)}>
+                  <button
+                    onClick={() => {
+                      if (item.served) return;
+                      toggleServed(item);
+                    }}
+                    disabled={item.served}
+                    style={{
+                      opacity: item.served ? 0.5 : 1,
+                      cursor: item.served ? "not-allowed" : "pointer",
+                    }}
+                  >
                     {item.served ? "✔ Đã mang" : "🚚 Mang ra"}
                   </button>
 
