@@ -12,36 +12,17 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
     Optional<OrderItem> findByOrderIdAndProductId(Long orderId, Long productId);
 
-    @Query("""
-    SELECT i.productName, SUM(i.quantity) as totalQty, SUM(i.quantity * i.price) as totalMoney
-    FROM OrderItem i
-    JOIN Orders o ON i.orderId = o.id
-    WHERE o.status = 'PAID'
-    GROUP BY i.productName
-    ORDER BY totalQty DESC
-    """)
-    List<Object[]> getBestSeller();
-
-    @Query("""
-    SELECT i.productName, SUM(i.quantity)
-    FROM OrderItem i
-    JOIN Orders o ON i.orderId = o.id
-    WHERE o.status = 'PAID'
-    GROUP BY i.productName
-    ORDER BY SUM(i.quantity) ASC
-    """)
-    List<Object[]> getLeastSeller();
-
     // ===== BEST SELLER =====
     @Query("""
         SELECT oi.productName, SUM(oi.quantity)
-        FROM OrderItem oi, Orders o
-        WHERE oi.orderId = o.id
-          AND o.status = 'PAID'
+        FROM OrderItem oi
+        JOIN Orders o ON oi.orderId = o.id
+        WHERE o.status = 'PAID'
         GROUP BY oi.productName
     """)
     List<Object[]> bestSeller();
 
+    // ===== Món ít mua =====
     @Query("""
         SELECT oi.productName, SUM(oi.quantity)
         FROM OrderItem oi
@@ -51,14 +32,16 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     """)
     List<Object[]> getProductSales();
 
+    // ===== Món chưa được mua lần nào =====
     @Query(value = """
-    SELECT p.name
-    FROM product p
-    WHERE p.id NOT IN (
-        SELECT oi.product_id
-        FROM order_item oi
-        JOIN orders o ON oi.order_id = o.id
-        WHERE o.status = 'PAID'
+        SELECT p.name
+        FROM product p
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM order_item oi
+            INNER JOIN orders o ON o.id = oi.order_id
+            WHERE o.status = 'PAID'
+              AND oi.product_id = p.id
         )
     """, nativeQuery = true)
     List<String> zeroSeller();

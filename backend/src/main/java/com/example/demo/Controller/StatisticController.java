@@ -76,30 +76,4 @@ public class StatisticController {
         LocalDate localDate = LocalDate.parse(date);
         return service.getRevenueByDate(localDate);
     }
-
-    @GetMapping("/test-db")
-    public String testDB() {
-        return "OK";
-    }
-
-    @GetMapping("/test-orders")
-    public Object testOrders() {
-        try {
-            return orderRepository.findAll();
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-    }
-
-    @GetMapping("/seed")
-    public String seed() {
-        Orders o = new Orders();
-        o.setStatus("PAID");
-        o.setTotalAmount(100000L);
-        o.setClosedAt(LocalDateTime.now());
-
-        orderRepository.save(o);
-
-        return "OK";
-    }
 }

@@ -32,9 +32,8 @@ public class StatisticService {
         return r != null ? r : 0;
     }
 
-    public Long revenueByDate(LocalDate date) {
-        Long r = orderRepo.revenueByDate(date.toString());
-        return r != null ? r : 0;
+    public long revenueByDate(LocalDate date) {
+        return Optional.ofNullable(orderRepo.revenueByDate(date)).orElse(0L);
     }
 
     // ===== 7 NGÀY =====
