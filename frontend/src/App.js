@@ -36,7 +36,8 @@ function App() {
 
   const loadTables = async () => {
     const res = await axios.get(`${API}/tables`);
-    setTables(res.data);
+    const sorted = res.data.sort((a, b) => a.id - b.id);
+    setTables(sorted);
   };
 
   const loadProducts = async () => {
@@ -262,6 +263,7 @@ function App() {
                   color: "white",
                   padding: 10,
                   boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+                  transition: "all 0.2s ease",
                 }}
               >
                 <div
