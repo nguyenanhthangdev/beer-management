@@ -34,4 +34,9 @@ public class OrderController {
     public void deleteAll() {
         service.deleteAll();
     }
+
+    @GetMapping("/table/{tableId}")
+    public Orders getOpenOrderByTable(@PathVariable Long tableId) {
+        return service.getOpenOrderByTable(tableId);
+    }
 }

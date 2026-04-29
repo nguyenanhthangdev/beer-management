@@ -43,9 +43,22 @@ function App() {
     setProducts(res.data);
   };
 
-  const openTable = (table) => {
+  const openTable = async (table) => {
     setSelectedTable(table);
-    setOrderId(null);
+
+    try {
+      const res = await axios.get(`${API}/orders/table/${table.id}`);
+
+      // nếu đã có order đang mở
+      if (res.data) {
+        setOrderId(res.data.id);
+        loadOrderItems(res.data.id);
+      } else {
+        setOrderId(null);
+      }
+    } catch (err) {
+      setOrderId(null);
+    }
   };
 
   const confirmOpenTable = async () => {

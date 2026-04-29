@@ -72,4 +72,10 @@ public class OrderService {
 
         return repo.save(order);
     }
+
+    public Orders getOpenOrderByTable(Long tableId) {
+        return repo
+                .findByTableIdAndStatus(tableId, "OPEN")
+                .orElse(null);
+    }
 }
