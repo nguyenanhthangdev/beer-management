@@ -45,6 +45,7 @@ function App() {
 
   const openTable = (table) => {
     setSelectedTable(table);
+    setOrderId(null);
   };
 
   const confirmOpenTable = async () => {
@@ -303,6 +304,7 @@ function App() {
               setSelectedTable(null);
               setOrderItems([]);
               setTotal(0);
+              setOrderId(null);
               loadTables();
             }}
             style={{
